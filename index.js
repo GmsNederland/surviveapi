@@ -6,17 +6,18 @@ const PORT = process.env.PORT || 10000;
 
 app.use(bodyParser.json());
 
-// Roblox endpoint
 app.post("/roblox", (req, res) => {
     const data = req.body;
+
+    // Secret check
     if (data.secret !== "rnd_QIRlGIxLqqnEcSLDHOqGODtJrWmR") {
         return res.status(403).json({ error: "Forbidden" });
     }
 
     console.log("Data ontvangen van Roblox:", data);
 
-    // TODO: Discord webhook
-    // fetch("DISCORD_WEBHOOK_URL", {...})
+    // Discord webhook kan hier
+    // fetch("WEBHOOK_URL", {...})
 
     return res.status(200).json({ success: true });
 });
