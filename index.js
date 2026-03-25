@@ -1,11 +1,26 @@
-const express = require("express");
-const app = express();
-app.use(express.json());
+import express from "express";
+import bodyParser from "body-parser";
 
-app.post("/roblox-data", (req, res) => {
-  console.log("Data ontvangen:", req.body);
-  res.sendStatus(200);
+const app = express();
+const PORT = process.env.PORT || 10000;
+
+app.use(bodyParser.json());
+
+// Roblox endpoint
+app.post("/roblox", (req, res) => {
+    const data = req.body;
+    if (data.secret !== "rnd_QIRlGIxLqqnEcSLDHOqGODtJrWmR") {
+        return res.status(403).json({ error: "Forbidden" });
+    }
+
+    console.log("Data ontvangen van Roblox:", data);
+
+    // TODO: Discord webhook
+    // fetch("DISCORD_WEBHOOK_URL", {...})
+
+    return res.status(200).json({ success: true });
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server draait op ${PORT}`));
+app.listen(PORT, () => {
+    console.log(`Server draait op ${PORT}`);
+});
