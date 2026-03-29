@@ -1,7 +1,6 @@
 const { Client, GatewayIntentBits } = require("discord.js");
 const express = require("express");
 const cors = require("cors");
-const { token } = require('../.env');
 
 
 const app = express();
@@ -11,7 +10,7 @@ app.use(cors({
 }));
 
 // 🔑 CONFIG
-const TOKEN = "token";
+const TOKEN = process.env.TOKEN;
 const GUILD_ID = "1062808198328893520";
 
 // 🤖 Discord bot
