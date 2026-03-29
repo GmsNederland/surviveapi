@@ -11,7 +11,7 @@ app.use(cors({
 
 // 🔑 CONFIG
 const TOKEN = process.env.TOKEN;
-const GUILD_ID = "1062808198328893520";
+const GUILD_ID = process.env.GUILD_ID;
 
 // 🤖 Discord bot
 const client = new Client({
