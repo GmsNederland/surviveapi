@@ -34,8 +34,22 @@ app.get("/", (req, res) => {
 // 📡 Voice data ophalen
 app.get("/api/voice-data", async (req, res) => {
   try {
-    const guild = await client.guilds.fetch(GUILD_ID);
-    await guild.members.fetch(); // zorgt dat members geladen zijn
+    if (!client.isReady()) {
+      return res.status(503).json({ error: "Bot not ready" });
+    }
+
+    const guild = client.guilds.cache.get(GUILD_ID);
+
+    if (!guild) {
+      return res.status(500).json({ error: "Guild not found in cache" });
+    }
+
+    // Optioneel: members fetch (met try/catch)
+    try {
+      await guild.members.fetch();
+    } catch (e) {
+      console.warn("Members fetch failed:", e.message);
+    }
 
     const channels = guild.channels.cache
       .filter(c => c.isVoiceBased())
@@ -52,7 +66,7 @@ app.get("/api/voice-data", async (req, res) => {
 
   } catch (err) {
     console.error("voice-data error:", err);
-    res.status(500).json({ error: "Fout bij ophalen voice data" });
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
