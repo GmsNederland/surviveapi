@@ -58,8 +58,10 @@ app.get("/api/voice-data", async (req, res) => {
         name: channel.name,
         members: channel.members.map(m => ({
           id: m.id,
-          username: m.user.username
-        }))
+          username: m.user.username,
+  roles: m.roles.cache
+    .filter(r => r.id !== GUILD_ID) // optioneel @everyone eruit
+    .map(r => r.name)        }))
       }));
 
     res.json({ channels });
