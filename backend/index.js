@@ -1,15 +1,18 @@
 const express = require("express");
-const bodyParser = require("body-parser");
 const cors = require("cors");
 const { Client, GatewayIntentBits } = require("discord.js");
 
 const app = express();
-app.use(bodyParser.json());
+app.use(express.json());
 app.use(cors({ origin: "*" }));
 
-const PORT = process.env.PORT || 10000;
+const PORT = process.env.PORT || 3000;
 
-// Discord bot
+// 🔑 CONFIG
+const TOKEN = process.env.TOKEN;
+const GUILD_ID = "1062808198328893520";
+
+// 🤖 Discord bot
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -18,14 +21,21 @@ const client = new Client({
   ]
 });
 
+// ✅ Bot ready
 client.once("ready", () => {
   console.log(`Bot online als ${client.user.tag}`);
 });
 
-// ✅ voice-data route
+// 🌐 Root route (fix 404 op "/")
+app.get("/", (req, res) => {
+  res.send("API is running 🚀");
+});
+
+// 📡 Voice data ophalen
 app.get("/api/voice-data", async (req, res) => {
   try {
-    const guild = await client.guilds.fetch("1062808198328893520");
+    const guild = await client.guilds.fetch(GUILD_ID);
+    await guild.members.fetch(); // zorgt dat members geladen zijn
 
     const channels = guild.channels.cache
       .filter(c => c.isVoiceBased())
@@ -39,13 +49,36 @@ app.get("/api/voice-data", async (req, res) => {
       }));
 
     res.json({ channels });
+
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Fout bij ophalen" });
+    console.error("voice-data error:", err);
+    res.status(500).json({ error: "Fout bij ophalen voice data" });
   }
 });
 
-// ✅ roblox route
+// 🚀 User verplaatsen
+app.post("/api/move-user", async (req, res) => {
+  try {
+    const { userId, channelId } = req.body;
+
+    const guild = await client.guilds.fetch(GUILD_ID);
+    const member = await guild.members.fetch(userId);
+
+    if (!member.voice.channel) {
+      return res.status(400).json({ error: "User zit niet in voice" });
+    }
+
+    await member.voice.setChannel(channelId);
+
+    res.json({ success: true });
+
+  } catch (err) {
+    console.error("move-user error:", err);
+    res.status(500).json({ error: "Move failed" });
+  }
+});
+
+// 🤝 Roblox endpoint
 app.post("/roblox", (req, res) => {
   const data = req.body;
 
@@ -58,35 +91,10 @@ app.post("/roblox", (req, res) => {
   res.json({ success: true });
 });
 
+// 🚀 Start server
 app.listen(PORT, () => {
-  console.log(`Server draait op ${PORT}`);
+  console.log(`Server draait op poort ${PORT}`);
 });
 
-// bot login
-client.login(process.env.TOKEN);// // index.js (CommonJS)
-// const express = require("express");
-// const bodyParser = require("body-parser");
-
-// const app = express();
-// const PORT = process.env.PORT || 10000;
-
-// app.use(bodyParser.json());
-
-// app.post("/roblox", (req, res) => {
-//     const data = req.body;
-
-//     if (data.secret !== "rnd_QIRlGIxLqqnEcSLDHOqGODtJrWmR") {
-//         return res.status(403).json({ error: "Forbidden" });
-//     }
-
-//     console.log("Data ontvangen van Roblox:", data);
-
-//     // Discord webhook kan hier
-//     // fetch("WEBHOOK_URL", {...})
-
-//     return res.status(200).json({ success: true });
-// });
-
-// app.listen(PORT, () => {
-//     console.log(`Server draait op ${PORT}`);
-// });
+// 🤖 Start bot
+client.login(TOKEN);
