@@ -3,15 +3,15 @@ const app = express();
 
 app.use(express.json());
 
-// 🔹 memory in API
+// 🔹 memory
 let lastAnnouncement = null;
 
-// 🔹 endpoint om announcement te zetten (van bot)
+// ✅ POST endpoint (BELANGRIJK)
 app.post('/set-announcement', (req, res) => {
     const { message, timestamp, author, userId } = req.body;
 
     if (!message) {
-        return res.status(400).json({ error: 'No message provided' });
+        return res.status(400).json({ error: 'No message' });
     }
 
     lastAnnouncement = {
@@ -21,12 +21,12 @@ app.post('/set-announcement', (req, res) => {
         userId
     };
 
-    console.log("📢 Announcement ontvangen via bot:", lastAnnouncement);
+    console.log("📢 Announcement opgeslagen:", lastAnnouncement);
 
     res.json({ success: true });
 });
 
-// 🔹 endpoint om announcement op te halen
+// ✅ GET endpoint
 app.get('/last-announcement', (req, res) => {
     if (!lastAnnouncement) {
         return res.status(404).json({ error: 'No announcement' });
@@ -35,7 +35,7 @@ app.get('/last-announcement', (req, res) => {
     res.json(lastAnnouncement);
 });
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`✅ API draait op poort ${PORT}`);
 });
