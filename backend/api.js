@@ -14,13 +14,18 @@ app.get('/', (req, res) => {
 // ✅ POST endpoint
 app.post('/set-announcement', (req, res) => {
     try {
-        const { message, timestamp, author, userId } = req.body;
+        const { title, message, timestamp, author, userId } = req.body;
 
         if (!message) {
             return res.status(400).json({ error: 'No message provided' });
         }
 
+        if (!title) {
+            return res.status(400).json({ error: 'Geen title mee geven'})
+        }
+
         lastAnnouncement = {
+            title,
             message,
             timestamp: timestamp || Date.now(),
             author: author || 'unknown',
