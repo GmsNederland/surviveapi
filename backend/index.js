@@ -107,15 +107,13 @@ app.post("/roblox", (req, res) => {
   res.json({ success: true });
 });
 
-// 🚀 Start server
-app.listen(PORT, () => {
-  console.log(`Server draait op poort ${PORT}`);
-});
 
 let lastAnnouncement = null;
 
 // POST announcement
 app.post('/set-announcement', (req, res) => {
+    console.log("🚀 ROUTE HIT /set-announcement");
+      res.json({ works: true });
   try {
     const { message, timestamp, author, userId } = req.body;
 
@@ -147,6 +145,11 @@ app.get('/last-announcement', (req, res) => {
   }
 
   res.json(lastAnnouncement);
+});
+
+// 🚀 Start server
+app.listen(PORT, () => {
+  console.log(`Server draait op poort ${PORT}`);
 });
 
 // 🤖 Start bot
