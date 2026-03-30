@@ -115,13 +115,17 @@ app.post('/set-announcement', (req, res) => {
     console.log("🚀 ROUTE HIT /set-announcement");
       res.json({ works: true });
   try {
-    const { message, timestamp, author, userId } = req.body;
+    const { title, message, timestamp, author, userId } = req.body;
 
     if (!message) {
       return res.status(400).json({ error: 'No message provided' });
     }
+    if (!title) {
+      return res.status(400).json({ error: 'Geen tittle gevonden'})
+    }
 
     lastAnnouncement = {
+      title,
       message,
       timestamp: timestamp || Date.now(),
       author: author || "unknown",
