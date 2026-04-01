@@ -12,6 +12,8 @@ const PORT = process.env.PORT || 3000;
 const TOKEN = process.env.TOKEN;
 const GUILD_ID = "1062808198328893520";
 
+const actieveDiensten = new Map();
+
 // 🤖 Discord bot
 const client = new Client({
   intents: [
@@ -109,59 +111,58 @@ app.post("/roblox", (req, res) => {
 
 // 📻 Roblox Radio Status endpoint
 app.post("/radiostatus", (req, res) => {
-  try {
-    const data = req.body;
+  const data = req.body;
 
-    console.log("\n==============================");
-    console.log("📡 INCOMING ROBLOX REQUEST");
-    console.log("==============================");
+  console.log("📡 RADIO:", data);
 
-    console.log("📥 RAW BODY:", data);
+  const username = data.username?.toLowerCase();
 
-    const {
-      username,
-      status,
-      team,
-      roepnummer,
-      straat,
-      api
-    } = data;
+  const dienst = actieveDiensten.get(username);
 
-    console.log("👤 Username:", username);
-    console.log("📊 Status:", status);
-    console.log("👥 Team:", team);
-    console.log("🔢 Roepnummer:", roepnummer);
-    console.log("🧾 API STRING:", api);
-
-    // 🔍 check dienst
-    const dienst = dienstModule.actieveDiensten.get(
-      username?.toLowerCase()
-    );
-
-    if (!dienst) {
-      console.log("❌ NIET IN DIENST:", username);
-
-      return res.status(403).json({
-        error: "User not in service"
-      });
-    }
-
-    console.log("✅ IN DIENST:", dienst.discordNaam);
-    console.log("🆔 Discord ID:", dienst.discordId);
-
-    console.log("==============================\n");
-
-    res.json({
-      success: true,
-      linkedDiscord: dienst.discordNaam
-    });
-
-  } catch (err) {
-    console.error("❌ radiostatus error:", err);
-    res.status(500).json({ error: "Server error" });
+  if (!dienst) {
+    console.log("❌ Niet in dienst:", username);
+    return res.status(403).json({ error: "User not in service" });
   }
+
+  console.log("✅ IN DIENST:", dienst.discordNaam);
+
+  res.json({
+    success: true,
+    discord: dienst.discordNaam
+  });
 });
 
+app.post("/set-dienst", (req, res) => {
+  const { robloxNaam, discordId, discordNaam } = req.body;
+
+  if (!robloxNaam) {
+    return res.status(400).json({ error: "Missing robloxNaam" });
+  }
+
+  actieveDiensten.set(robloxNaam.toLowerCase(), {
+    discordId,
+    discordNaam,
+    startTime: Date.now()
+  });
+
+  console.log("✅ Dienst gestart:", robloxNaam);
+
+  res.json({ success: true });
+});
+
+app.post("/remove-dienst", (req, res) => {
+  const { robloxNaam } = req.body;
+
+  if (!actieveDiensten.has(robloxNaam.toLowerCase())) {
+    return res.status(404).json({ error: "Not found" });
+  }
+
+  actieveDiensten.delete(robloxNaam.toLowerCase());
+
+  console.log("🛑 Dienst gestopt:", robloxNaam);
+
+  res.json({ success: true });
+});
 
 let lastAnnouncement = null;
 
