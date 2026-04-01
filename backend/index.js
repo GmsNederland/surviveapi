@@ -107,6 +107,51 @@ app.post("/roblox", (req, res) => {
   res.json({ success: true });
 });
 
+// 📻 Roblox Radio Status endpoint
+app.post("/radiostatus", (req, res) => {
+  try {
+    const data = req.body;
+
+    console.log("📡 RADIO STATUS ONTVANGEN:");
+    console.log(data);
+
+    // 🔒 Optioneel: beveiliging (aanrader!)
+    // if (data.secret !== "JOUW_SECRET") {
+    //   return res.status(403).json({ error: "Forbidden" });
+    // }
+
+    const {
+      username,
+      team,
+      status,
+      roepnummer,
+      straat,
+      api
+    } = data;
+
+    // 🔍 Basic validatie
+    if (!username || !status) {
+      return res.status(400).json({ error: "Missing data" });
+    }
+
+    // 🧠 Hier kan je doen wat je wilt:
+    // - opslaan in database
+    // - doorsturen naar Discord
+    // - realtime dashboard
+
+    console.log(`👤 ${username} | ${roepnummer} | ${status} | ${team}`);
+
+    res.json({
+      success: true,
+      received: data
+    });
+
+  } catch (err) {
+    console.error("❌ radiostatus error:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
 
 let lastAnnouncement = null;
 
