@@ -112,30 +112,44 @@ app.post("/radiostatus", (req, res) => {
   try {
     const data = req.body;
 
+    console.log("\n==============================");
+    console.log("📡 INCOMING ROBLOX REQUEST");
+    console.log("==============================");
+
+    console.log("📥 RAW BODY:", data);
+
     const {
       username,
       status,
       team,
-      roepnummer
+      roepnummer,
+      straat,
+      api
     } = data;
 
-    console.log("📡 INCOMING:", data);
+    console.log("👤 Username:", username);
+    console.log("📊 Status:", status);
+    console.log("👥 Team:", team);
+    console.log("🔢 Roepnummer:", roepnummer);
+    console.log("🧾 API STRING:", api);
 
-    // 🔍 CHECK OF IN DIENST
+    // 🔍 check dienst
     const dienst = dienstModule.actieveDiensten.get(
       username?.toLowerCase()
     );
 
     if (!dienst) {
-      console.warn("❌ Niet in dienst:", username);
+      console.log("❌ NIET IN DIENST:", username);
 
       return res.status(403).json({
         error: "User not in service"
       });
     }
 
-    // ✅ GELDIGE MATCH
-    console.log(`✅ MATCH: ${username} hoort bij ${dienst.discordNaam}`);
+    console.log("✅ IN DIENST:", dienst.discordNaam);
+    console.log("🆔 Discord ID:", dienst.discordId);
+
+    console.log("==============================\n");
 
     res.json({
       success: true,
