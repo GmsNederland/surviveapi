@@ -112,38 +112,34 @@ app.post("/radiostatus", (req, res) => {
   try {
     const data = req.body;
 
-    console.log("📡 RADIO STATUS ONTVANGEN:");
-    console.log(data);
-
-    // 🔒 Optioneel: beveiliging (aanrader!)
-    // if (data.secret !== "JOUW_SECRET") {
-    //   return res.status(403).json({ error: "Forbidden" });
-    // }
-
     const {
       username,
-      team,
       status,
-      roepnummer,
-      straat,
-      api
+      team,
+      roepnummer
     } = data;
 
-    // 🔍 Basic validatie
-    if (!username || !status) {
-      return res.status(400).json({ error: "Missing data" });
+    console.log("📡 INCOMING:", data);
+
+    // 🔍 CHECK OF IN DIENST
+    const dienst = dienstModule.actieveDiensten.get(
+      username?.toLowerCase()
+    );
+
+    if (!dienst) {
+      console.warn("❌ Niet in dienst:", username);
+
+      return res.status(403).json({
+        error: "User not in service"
+      });
     }
 
-    // 🧠 Hier kan je doen wat je wilt:
-    // - opslaan in database
-    // - doorsturen naar Discord
-    // - realtime dashboard
-
-    console.log(`👤 ${username} | ${roepnummer} | ${status} | ${team}`);
+    // ✅ GELDIGE MATCH
+    console.log(`✅ MATCH: ${username} hoort bij ${dienst.discordNaam}`);
 
     res.json({
       success: true,
-      received: data
+      linkedDiscord: dienst.discordNaam
     });
 
   } catch (err) {
