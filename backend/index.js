@@ -157,4 +157,6 @@ app.listen(PORT, () => {
 });
 
 // 🤖 Start bot
-client.login(TOKEN);
+client.login(TOKEN).catch(err => {
+  console.error("Login error:", err);
+});
