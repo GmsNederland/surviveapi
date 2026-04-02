@@ -109,6 +109,74 @@ app.post("/roblox", (req, res) => {
   res.json({ success: true });
 });
 
+// ================================
+// 📍 REALTIME TRACKING (STABIEL)
+// ================================
+
+const playerLocations = new Map();
+
+// Cleanup (ghost players fix)
+const PLAYER_TIMEOUT = 10000;
+
+setInterval(() => {
+  const now = Date.now();
+
+  for (const [userId, data] of playerLocations.entries()) {
+    if (now - data.lastUpdate > PLAYER_TIMEOUT) {
+      playerLocations.delete(userId);
+    }
+  }
+}, 5000);
+
+
+// 📡 POST TRACKING (ULTRA FAST RESPONSE)
+app.post("/player-locations", (req, res) => {
+
+  // 🔥 BELANGRIJK: DIRECT RESPONSE → voorkomt timeout
+  res.sendStatus(200);
+
+  const updates = req.body;
+  if (!Array.isArray(updates)) return;
+
+  for (const data of updates) {
+    if (!data || !data.userId) continue;
+
+    // REMOVE player
+    if (data.type === "remove") {
+      playerLocations.delete(data.userId);
+      continue;
+    }
+
+    // UPDATE player
+    if (data.type === "update") {
+
+      // minimale validatie
+      if (!data.mapPosition) continue;
+
+      playerLocations.set(data.userId, {
+        userId: data.userId,
+        username: data.username || "unknown",
+        team: data.team || "unknown",
+
+        // 🔥 MAP READY
+        mapPosition: {
+          x: Math.max(0, Math.min(1, data.mapPosition.x || 0)),
+          y: Math.max(0, Math.min(1, data.mapPosition.y || 0))
+        },
+
+        lastUpdate: Date.now()
+      });
+    }
+  }
+});
+
+// 🌍 GET TRACKING DATA (VOOR WEBSITE)
+app.get("/player-locations", (req, res) => {
+  res.json({
+    players: Array.from(playerLocations.values())
+  });
+});
+
 // 📻 Roblox Radio Status endpoint
 app.post("/radiostatus", (req, res) => {
   const data = req.body;
