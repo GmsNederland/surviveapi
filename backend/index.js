@@ -15,8 +15,8 @@ const GUILD_ID = "1062808198328893520";
 const actieveDiensten = new Map();
 
 let luchtalarmState = {
-  type: null,     // "all" | "single"
-  nummer: null,   // paalnummer
+  type: null,
+  nummer: null,
   timestamp: 0
 };
 
