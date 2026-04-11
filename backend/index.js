@@ -13,6 +13,7 @@ const TOKEN = process.env.TOKEN;
 const GUILD_ID = "1062808198328893520";
 
 const actieveDiensten = new Map();
+let amberAlert = null;
 
 let luchtalarmState = {
   type: null,
@@ -157,6 +158,8 @@ app.post("/api/luchtalarm", (req, res) => {
 });
 // luchtalarm api legen
 app.post("/api/luchtalarm/clear", (req, res) => {
+  // simpel (geen secret in Roblox)
+  // je kunt hier later IP / rate limit toevoegen
 
   luchtalarmState = {
     type: null,
@@ -166,6 +169,34 @@ app.post("/api/luchtalarm/clear", (req, res) => {
 
   console.log("🧹 LUCHTALARM CLEARED");
 
+  res.json({ success: true });
+});
+
+// amberalert deel
+app.post("/api/amberalert", (req, res) => {
+  const { type, playerName, info } = req.body;
+
+  if (type !== "amberalert") {
+    return res.status(400).json({ error: "Invalid type" });
+  }
+
+  amberAlert = {
+    playerName,
+    info,
+    timestamp: Date.now()
+  };
+
+  console.log("🚨 AMBER ALERT:", amberAlert);
+
+  res.json({ success: true });
+});
+
+app.get("/api/amberalert", (req, res) => {
+  res.json(amberAlert || { active: false });
+});
+
+app.post("/api/amberalert/clear", (req, res) => {
+  amberAlert = null;
   res.json({ success: true });
 });
 // ================================
