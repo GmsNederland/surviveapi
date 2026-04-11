@@ -174,21 +174,39 @@ app.post("/api/luchtalarm/clear", (req, res) => {
 
 // amberalert deel
 app.post("/api/amberalert", (req, res) => {
-  const { type, playerName, info } = req.body;
+  const {
+    playerName,
+    age,
+    features,
+    location,
+    datetime
+  } = req.body;
 
-  if (type !== "amberalert") {
-    return res.status(400).json({ error: "Invalid type" });
+  if (!playerName) {
+    return res.status(400).json({ error: "Missing playerName" });
   }
 
   amberAlert = {
+    active: true,
     playerName,
-    info,
+    age: age || "onbekend",
+    features: features || "onbekend",
+    location: location || "onbekend",
+    datetime: datetime || "onbekend",
     timestamp: Date.now()
   };
 
   console.log("🚨 AMBER ALERT:", amberAlert);
 
   res.json({ success: true });
+});
+
+app.get("/api/amberalert", (req, res) => {
+  if (!amberAlert) {
+    return res.json({ active: false });
+  }
+
+  res.json(amberAlert);
 });
 
 app.get("/api/amberalert", (req, res) => {
