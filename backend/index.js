@@ -155,6 +155,24 @@ app.post("/api/luchtalarm", (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
+// luchtalarm api legen
+app.post("/api/luchtalarm/clear", (req, res) => {
+  const { secret } = req.body;
+
+  if (secret !== process.env.LUCHTALARM_SECRET) {
+    return res.status(403).json({ error: "Forbidden" });
+  }
+
+  luchtalarmState = {
+    type: null,
+    nummer: null,
+    timestamp: 0
+  };
+
+  console.log("🧹 LUCHTALARM CLEARED");
+
+  res.json({ success: true });
+});
 // ================================
 // 📍 REALTIME TRACKING (STABIEL)
 // ================================
