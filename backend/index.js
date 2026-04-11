@@ -14,6 +14,12 @@ const GUILD_ID = "1062808198328893520";
 
 const actieveDiensten = new Map();
 
+let luchtalarmState = {
+  type: null,     // "all" | "single"
+  nummer: null,   // paalnummer
+  timestamp: 0
+};
+
 // 🤖 Discord bot
 const client = new Client({
   intents: [
@@ -73,6 +79,10 @@ app.get("/api/voice-data", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+// api luchtalarm status
+app.get("/api/luchtalarm/status", (req, res) => {
+  res.json(luchtalarmState);
+});
 
 // 🚀 User verplaatsen
 app.post("/api/move-user", async (req, res) => {
@@ -109,6 +119,42 @@ app.post("/roblox", (req, res) => {
   res.json({ success: true });
 });
 
+// 🚨 LUCHTALARM TRIGGER
+app.post("/api/luchtalarm", (req, res) => {
+  try {
+    const { secret, type, nummer } = req.body;
+
+    // 🔐 beveiliging
+    if (secret !== process.env.LUCHTALARM_SECRET) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+
+    if (!type) {
+      return res.status(400).json({ error: "Missing type" });
+    }
+
+    if (type === "single" && typeof nummer !== "number") {
+      return res.status(400).json({ error: "Missing nummer" });
+    }
+
+    luchtalarmState = {
+      type,
+      nummer: nummer || null,
+      timestamp: Date.now()
+    };
+
+    console.log("🚨 LUCHTALARM TRIGGER:", luchtalarmState);
+
+    res.json({
+      success: true,
+      state: luchtalarmState
+    });
+
+  } catch (err) {
+    console.error("luchtalarm error:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
 // ================================
 // 📍 REALTIME TRACKING (STABIEL)
 // ================================
