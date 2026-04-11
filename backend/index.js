@@ -157,11 +157,6 @@ app.post("/api/luchtalarm", (req, res) => {
 });
 // luchtalarm api legen
 app.post("/api/luchtalarm/clear", (req, res) => {
-  const { secret } = req.body;
-
-  if (secret !== process.env.LUCHTALARM_SECRET) {
-    return res.status(403).json({ error: "Forbidden" });
-  }
 
   luchtalarmState = {
     type: null,
