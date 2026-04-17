@@ -15,6 +15,13 @@ const GUILD_ID = "1062808198328893520";
 const actieveDiensten = new Map();
 let amberAlert = null;
 let lastP2000 = null;
+let p2000Posten = {
+  brandweer: {
+    vrijwilligers: [],
+    beroeps: []
+  },
+  ambulance: []
+};
 
 let luchtalarmState = {
   type: null,
@@ -457,6 +464,30 @@ app.get("/api/p2000", (req, res) => {
 
 app.post("/api/p2000/clear", (req, res) => {
   lastP2000 = null;
+  res.json({ success: true });
+});
+
+// 🔹 GET posten (website haalt dit op)
+app.get("/api/p2000/posten", (req, res) => {
+  res.json(p2000Posten);
+});
+
+// 🔹 UPDATE posten (Roblox gaat dit straks vullen)
+app.post("/api/p2000/posten", (req, res) => {
+  const { secret, data } = req.body;
+
+  if (secret !== process.env.P2000_SECRET) {
+    return res.status(403).json({ error: "Forbidden" });
+  }
+
+  if (!data) {
+    return res.status(400).json({ error: "Missing data" });
+  }
+
+  p2000Posten = data;
+
+  console.log("📡 POSTEN UPDATED:", JSON.stringify(data, null, 2));
+
   res.json({ success: true });
 });
 
