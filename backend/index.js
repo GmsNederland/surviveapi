@@ -467,18 +467,14 @@ app.post("/api/p2000/clear", (req, res) => {
   res.json({ success: true });
 });
 
-// 🔹 GET posten (website haalt dit op)
+// 🔹 GET
 app.get("/api/p2000/posten", (req, res) => {
   res.json(p2000Posten);
 });
 
-// 🔹 UPDATE posten (Roblox gaat dit straks vullen)
+// 🔹 POST (zonder secret)
 app.post("/api/p2000/posten", (req, res) => {
-  const { secret, data } = req.body;
-
-  if (secret !== process.env.P2000_SECRET) {
-    return res.status(403).json({ error: "Forbidden" });
-  }
+  const { data } = req.body;
 
   if (!data) {
     return res.status(400).json({ error: "Missing data" });
@@ -486,7 +482,7 @@ app.post("/api/p2000/posten", (req, res) => {
 
   p2000Posten = data;
 
-  console.log("📡 POSTEN UPDATED:", JSON.stringify(data, null, 2));
+  console.log("📡 POSTEN UPDATE:", JSON.stringify(data, null, 2));
 
   res.json({ success: true });
 });
