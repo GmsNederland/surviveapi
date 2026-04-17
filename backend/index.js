@@ -14,6 +14,7 @@ const GUILD_ID = "1062808198328893520";
 
 const actieveDiensten = new Map();
 let amberAlert = null;
+let lastP2000 = null;
 
 let luchtalarmState = {
   type: null,
@@ -381,6 +382,82 @@ app.get('/last-announcement', (req, res) => {
   }
 
   res.json(lastAnnouncement);
+});
+
+app.post("/api/p2000", (req, res) => {
+  try {
+    const {
+      title,
+      message,
+      location,
+      priority,
+      required,
+      secret
+    } = req.body;
+
+    // 🔐 SECURITY
+    if (secret !== process.env.P2000_SECRET) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+
+    // ❌ GEEN DUMMY → HARD VALIDATION
+    if (!title) {
+      return res.status(400).json({ error: "Missing title" });
+    }
+
+    if (!message) {
+      return res.status(400).json({ error: "Missing message" });
+    }
+
+    if (!location) {
+      return res.status(400).json({ error: "Missing location" });
+    }
+
+    if (typeof priority !== "number") {
+      return res.status(400).json({ error: "Invalid priority" });
+    }
+
+    if (typeof required !== "number") {
+      return res.status(400).json({ error: "Invalid required" });
+    }
+
+    // ✅ ECHTE DATA OPSLAAN
+    lastP2000 = {
+      title,
+      message,
+      location,
+      priority,
+      required,
+      timestamp: Date.now()
+    };
+
+    console.log("🚨 P2000:", lastP2000);
+
+    res.json({
+      success: true,
+      data: lastP2000
+    });
+
+  } catch (err) {
+    console.error("P2000 error:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+app.get("/api/p2000", (req, res) => {
+
+  if (!lastP2000) {
+    return res.status(404).json({
+      error: "No active call"
+    });
+  }
+
+  res.json(lastP2000);
+});
+
+app.post("/api/p2000/clear", (req, res) => {
+  lastP2000 = null;
+  res.json({ success: true });
 });
 
 // 🚀 Start server
