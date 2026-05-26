@@ -495,10 +495,12 @@ let weatherData = {
   updatedAt: Date.now()
 };
 
+// 🔹 GET WEER
 app.get("/api/weather", (req, res) => {
   res.json(weatherData);
 });
 
+// 🔹 POST WEER
 app.post("/api/weather", (req, res) => {
   const {
     condition,
@@ -509,7 +511,7 @@ app.post("/api/weather", (req, res) => {
 
   if (!condition) {
     return res.status(400).json({
-      error: "Mis Condition"
+      error: "Missing condition"
     });
   }
 
@@ -522,14 +524,14 @@ app.post("/api/weather", (req, res) => {
   };
 
   console.log(
-    "Weer Update:",
+    "🌦️ WEATHER UPDATE:",
     JSON.stringify(weatherData, null, 2)
   );
 
   res.json({
     success: true
-  })
-})
+  });
+});
 
 // 🚀 Start server
 app.listen(PORT, () => {
