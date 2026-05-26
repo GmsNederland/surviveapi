@@ -489,29 +489,33 @@ app.post("/api/p2000/posten", (req, res) => {
 });
 
 let weatherData = {
+  city: "Breda",
   condition: "Clear",
   temperature: 31,
   windSpeed: 0,
   rainIntensity: 0,
+  humidity: 0,
+  cloud: 0,
   updatedAt: Date.now()
 };
 
-// 🔹 GET WEER
+// 🔹 GET
 app.get("/api/weather", (req, res) => {
   res.json(weatherData);
 });
 
-// 🔹 POST WEER
+// 🔹 POST (optioneel debug)
 app.post("/api/weather", (req, res) => {
   const { data } = req.body;
+
   if (!data) {
     return res.status(400).json({ error: "Missing data" });
   }
+
   weatherData = data;
-  console.log("🌦️ WEATHER UPDATE:", JSON.stringify(data, null, 2));
+
   res.json({ success: true });
 });
-
 
 const WEATHER_API_KEY = "a2b75b6c094a43a1a34144047262605";
 
@@ -528,25 +532,20 @@ async function updateDutchWeather() {
       condition: current.condition.text,
       temperature: current.temp_c,
       windSpeed: current.wind_kph,
+      rainIntensity: current.precip_mm,
       humidity: current.humidity,
       cloud: current.cloud,
-      lastUpdate: Date.now()
+      updatedAt: Date.now()
     };
 
-    console.log(
-      "🇳🇱 Nederlands weer bijgewerkt:",
-      weatherData.condition
-    );
+    console.log("🇳🇱 Breda weer:", weatherData.condition);
 
   } catch (err) {
-    console.error("❌ Weer update mislukt:", err.message);
+    console.error("❌ Weather error:", err.message);
   }
 }
 
-// Direct uitvoeren
 updateDutchWeather();
-
-// Elke 5 minuten verversen
 setInterval(updateDutchWeather, 5 * 60 * 1000);
 
 // 🚀 Start server
