@@ -487,6 +487,50 @@ app.post("/api/p2000/posten", (req, res) => {
   res.json({ success: true });
 });
 
+let weatherData = {
+  condition: "Clear",
+  temperature: 20,
+  windSpeed: 0,
+  rainIntensity: 0,
+  updatedAt: Date.now()
+};
+
+app.get("/api/weather", (req, res) => {
+  res.json(weatherData);
+});
+
+app.post("/api/weather", (req, res) => {
+  const {
+    condition,
+    temperature,
+    windSpeed,
+    rainIntensity
+  } = req.body;
+
+  if (!condition) {
+    return res.status(400).json({
+      error: "Mis Condition"
+    });
+  }
+
+  weatherData = {
+    condition,
+    temperature,
+    windSpeed,
+    rainIntensity,
+    updatedAt: Date.now()
+  };
+
+  console.log(
+    "Weer Update:",
+    JSON.stringify(weatherData, null, 2)
+  );
+
+  res.json({
+    success: true
+  })
+})
+
 // 🚀 Start server
 app.listen(PORT, () => {
   console.log(`Server draait op poort ${PORT}`);
