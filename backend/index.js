@@ -3,6 +3,7 @@ const cors = require("cors");
 const { Client, GatewayIntentBits } = require("discord.js");
 
 const app = express();
+const axios = require("axios");
 app.use(express.json());
 app.use(cors({ origin: "*" }));
 
@@ -502,36 +503,51 @@ app.get("/api/weather", (req, res) => {
 
 // 🔹 POST WEER
 app.post("/api/weather", (req, res) => {
-  const {
-    condition,
-    temperature,
-    windSpeed,
-    rainIntensity
-  } = req.body;
-
-  if (!condition) {
-    return res.status(400).json({
-      error: "Missing condition"
-    });
+  const { data } = req.body;
+  if (!data) {
+    return res.status(400).json({ error: "Missing data" });
   }
-
-  weatherData = {
-    condition,
-    temperature,
-    windSpeed,
-    rainIntensity,
-    updatedAt: Date.now()
-  };
-
-  console.log(
-    "🌦️ WEATHER UPDATE:",
-    JSON.stringify(weatherData, null, 2)
-  );
-
-  res.json({
-    success: true
-  });
+  weatherData = data;
+  console.log("🌦️ WEATHER UPDATE:", JSON.stringify(data, null, 2));
+  res.json({ success: true });
 });
+
+
+const WEATHER_API_KEY = "a2b75b6c094a43a1a34144047262605";
+
+async function updateDutchWeather() {
+  try {
+    const response = await axios.get(
+      `https://api.weatherapi.com/v1/current.json?key=${WEATHER_API_KEY}&q=Breda,Netherlands`
+    );
+
+    const current = response.data.current;
+
+    weatherData = {
+      city: "Breda",
+      condition: current.condition.text,
+      temperature: current.temp_c,
+      windSpeed: current.wind_kph,
+      humidity: current.humidity,
+      cloud: current.cloud,
+      lastUpdate: Date.now()
+    };
+
+    console.log(
+      "🇳🇱 Nederlands weer bijgewerkt:",
+      weatherData.condition
+    );
+
+  } catch (err) {
+    console.error("❌ Weer update mislukt:", err.message);
+  }
+}
+
+// Direct uitvoeren
+updateDutchWeather();
+
+// Elke 5 minuten verversen
+setInterval(updateDutchWeather, 5 * 60 * 1000);
 
 // 🚀 Start server
 app.listen(PORT, () => {
