@@ -489,7 +489,7 @@ app.post("/api/p2000/posten", (req, res) => {
 
 let weatherData = {
   condition: "Clear",
-  temperature: 20,
+  temperature: 31,
   windSpeed: 0,
   rainIntensity: 0,
   updatedAt: Date.now()
