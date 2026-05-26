@@ -77,9 +77,10 @@ app.get("/api/voice-data", async (req, res) => {
         members: channel.members.map(m => ({
           id: m.id,
           username: m.user.username,
-  roles: m.roles.cache
-    .filter(r => r.id !== GUILD_ID) // optioneel @everyone eruit
-    .map(r => r.name)        }))
+          roles: m.roles.cache
+            .filter(r => r.id !== GUILD_ID) // optioneel @everyone eruit
+            .map(r => r.name)
+        }))
       }));
 
     res.json({ channels });
@@ -353,8 +354,8 @@ let lastAnnouncement = null;
 
 // POST announcement
 app.post('/set-announcement', (req, res) => {
-    console.log("🚀 ROUTE HIT /set-announcement");
-      res.json({ works: true });
+  console.log("🚀 ROUTE HIT /set-announcement");
+  res.json({ works: true });
   try {
     const { title, message, timestamp, author, userId } = req.body;
 
@@ -362,7 +363,7 @@ app.post('/set-announcement', (req, res) => {
       return res.status(400).json({ error: 'No message provided' });
     }
     if (!title) {
-      return res.status(400).json({ error: 'Geen tittle gevonden'})
+      return res.status(400).json({ error: 'Geen tittle gevonden' })
     }
 
     lastAnnouncement = {
@@ -546,8 +547,7 @@ async function updateDutchWeather() {
 }
 
 updateDutchWeather();
-setInterval(updateDutchWeather, 5 * 60 * 1000);
-
+setInterval(updateDutchWeather, 60 * 1000);
 // 🚀 Start server
 app.listen(PORT, () => {
   console.log(`Server draait op poort ${PORT}`);
