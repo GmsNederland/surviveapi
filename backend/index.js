@@ -532,10 +532,15 @@ async function updateDutchWeather() {
       city: "Breda",
       condition: current.condition.text,
       temperature: current.temp_c,
+      feelsLike: current.feelslike_c,
       windSpeed: current.wind_kph,
-      rainIntensity: current.precip_mm,
+      windDirection: current.wind_dir,
       humidity: current.humidity,
       cloud: current.cloud,
+      pressure: current.pressure_mb,
+      precipitation: current.precip_mm,
+      visibility: current.vis_km,
+      isDay: current.is_day === 1,
       updatedAt: Date.now()
     };
 
