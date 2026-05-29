@@ -529,7 +529,24 @@ async function updateDutchWeather() {
     const current = response.data.current;
     const astro = response.data.forecast.forecastday[0].astro;
 
-    const now = new Date();
+    // 🇳🇱 echte Nederlandse tijd (timezone safe)
+    const now = new Date(
+      new Date().toLocaleString("en-US", { timeZone: "Europe/Amsterdam" })
+    );
+
+    // 🌅 sunrise/sunset omzetten naar bruikbare decimal time
+    const parseTime = (timeStr) => {
+      const [time, modifier] = timeStr.split(" ");
+      let [hours, minutes] = time.split(":").map(Number);
+
+      if (modifier === "PM" && hours !== 12) hours += 12;
+      if (modifier === "AM" && hours === 12) hours = 0;
+
+      return hours + minutes / 60;
+    };
+
+    const sunrise = parseTime(astro.sunrise);
+    const sunset = parseTime(astro.sunset);
 
     weatherData = {
       city: "Breda",
@@ -545,17 +562,19 @@ async function updateDutchWeather() {
       visibility: current.vis_km,
       isDay: current.is_day === 1,
 
-      // 🕒 REAL TIME (voor 1-op-1 Roblox sync)
+      // 🕒 ULTRA REAL NL TIME (safe + accurate)
       time: {
         hour: now.getHours(),
         minute: now.getMinutes(),
         second: now.getSeconds(),
-        unix: Math.floor(Date.now() / 1000)
+        unix: Math.floor(now.getTime() / 1000)
       },
 
-      // 🌅 ZONNEN (voor echte dag/nacht lengte per seizoen)
-      sunrise: astro.sunrise,
-      sunset: astro.sunset,
+      // 🌅 REAL SUN DATA (DECIMAL → Roblox friendly)
+      sun: {
+        sunrise: sunrise,
+        sunset: sunset
+      },
 
       updatedAt: Date.now()
     };
