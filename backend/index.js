@@ -523,10 +523,13 @@ const WEATHER_API_KEY = "a2b75b6c094a43a1a34144047262605";
 async function updateDutchWeather() {
   try {
     const response = await axios.get(
-      `https://api.weatherapi.com/v1/current.json?key=${WEATHER_API_KEY}&q=Breda,Netherlands`
+      `https://api.weatherapi.com/v1/forecast.json?key=${WEATHER_API_KEY}&q=Breda,Netherlands&days=1`
     );
 
     const current = response.data.current;
+    const astro = response.data.forecast.forecastday[0].astro;
+
+    const now = new Date();
 
     weatherData = {
       city: "Breda",
@@ -541,6 +544,19 @@ async function updateDutchWeather() {
       precipitation: current.precip_mm,
       visibility: current.vis_km,
       isDay: current.is_day === 1,
+
+      // 🕒 REAL TIME (voor 1-op-1 Roblox sync)
+      time: {
+        hour: now.getHours(),
+        minute: now.getMinutes(),
+        second: now.getSeconds(),
+        unix: Math.floor(Date.now() / 1000)
+      },
+
+      // 🌅 ZONNEN (voor echte dag/nacht lengte per seizoen)
+      sunrise: astro.sunrise,
+      sunset: astro.sunset,
+
       updatedAt: Date.now()
     };
 
